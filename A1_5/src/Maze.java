@@ -1,7 +1,19 @@
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
-public class Maze {
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+
+public class Maze extends JPanel {
 	private int rows;
 	private int cols;
 	private int max_n;
@@ -189,4 +201,84 @@ public class Maze {
 		return true;
 	}
 	
-}
+	public void paintComponent(Graphics g) 
+	{
+		List<Cell> paintedCells = new ArrayList();
+		int AreaX = 10;
+	    int AreaY = 10;
+	    int roomSize = (35 - AreaX) / 35 + 60;
+
+	    // temp variables used for painting
+	    int x = AreaX;
+	    int y = AreaY;
+	    for (int i = 0; i < rows; i++) {
+	        for (int j = 0; j < cols; j++) {
+	        	int [] position = {i,j};
+	        	Cell cell = pickSpecificCell(position);
+	        	for(int k =0; k<cell.getNeighbors().length;k++) {
+	        		int cellx = cell.getPosition()[0];
+        			int celly = cell.getPosition()[1];
+        			int auxx = cellx+getMovs()[k][0];
+        			int auxy = celly+getMovs()[k][1];
+        			int [] auxposition = {auxx, auxy};
+        			Cell auxCell = pickSpecificCell(auxposition);
+        	
+	        		if (!(cell.getNeighbors()[k]) && !paintedCells.contains(auxCell) ) {
+	        			boolean outBounds = false;
+	        			if(auxx<0 || auxx>=rows || auxy<0 || auxy>=cols)  {
+	        				outBounds=true;
+	        			}
+	        			switch(id_mov[k]) {
+	        			case "N":
+	     
+	        				g.drawLine(x, y, x + roomSize, y);
+	        				break;
+	        			case "E":
+	        				g.drawLine(x+roomSize, y+roomSize, x+roomSize,y);
+	        				
+	        				break;
+	        			case "S":
+	        				
+	        				
+	        				g.drawLine(x, y+roomSize , x+roomSize , y+roomSize );
+	        				
+	        				break;
+	        			case "0":
+	        				g.drawLine(x+roomSize, y, x+roomSize,y + roomSize );
+	        				break;
+	        				
+	        			}
+	        			
+	        			
+		                
+		            }
+	        			
+		        }
+	        	paintedCells.add(cell);
+	        	 x += roomSize;
+	        }
+	      
+	        x = AreaX;
+	        y += roomSize;
+	       
+	    }
+	    /*
+	    BufferedImage bi = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+        //Graphics g = bi.createGraphics();
+        this.paint(g);
+        g.dispose();
+        File file = new File("graph.png");
+        try{
+            ImageIO.write(bi,"png",file);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        */
+	  
+	    
+    }
+	}
+	//JPG!!!
+	
+        
+

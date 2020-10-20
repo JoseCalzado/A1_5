@@ -1,14 +1,19 @@
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Scanner;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-public class Main {
+public class Main  {
 	public static void main(String args[]) throws org.json.simple.parser.ParseException {
 
 		System.out.println("Welcome to the Maze Generator and Solver from the A1-5 Group.");
@@ -21,7 +26,7 @@ public class Main {
 		while (!chooseanoption)
 			if (input.contentEquals("A") || input.contentEquals("a")) {
 				chooseanoption = true;
-				Maze maze;
+				
 				System.out.println(
 						"Choose two numbers, the first one will be the number of rows and the second the number of columns.");
 				input = readinput.nextLine();
@@ -51,26 +56,34 @@ public class Main {
 					}
 				}
 
-				maze = createMaze(rows, cols);
-				// El resultado del wilson se printea en un jpg.
+				
+				JFrame frame = new JFrame();
+				Maze maze = createMaze(rows, cols);
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setSize(1000, 1000);
+			    frame.setTitle("Maze");
+			    frame.add(maze);
+			    frame.setVisible(true);;
 				writeJson(maze);
 		
 			} else if (input.equals("B") || input.contentEquals("b")) {
 				chooseanoption = true;
 				System.out.println("Please, write the name of the file that you want to read.");
 				input = readinput.nextLine();
+				input.replace("/", "//");
 				boolean choosefile = false;
 				while (!choosefile) {
 					try {
 						Maze mazeread = readJson(input);
-						// El resultado se printea en un jpg.
+						
 						writeJson(mazeread);
 						choosefile = true;
 						System.out.println(
 								"The filename was correct, the maze has been written on the example.json file!");
 					} catch (Exception e) {
-						System.out.println("The name of the file wasn't correct, please try again");
+						System.out.println("Error reading the file, please try again");
 						input = readinput.nextLine();
+						input.replace("/", "//");
 					}
 				}
 			} else if (input.equals("E") || input.contentEquals("e")) {
@@ -259,6 +272,8 @@ public class Main {
 		correctmaze = true;
 		return correctmaze;
 	}
+	
+	
 	
 
 }

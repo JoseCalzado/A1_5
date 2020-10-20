@@ -1,4 +1,7 @@
+import java.awt.Graphics;
 import java.util.Arrays;
+
+import javax.swing.JPanel;
 
 public class Cell {
 	private int [] position;
@@ -59,4 +62,5 @@ public class Cell {
 		}
 		return 0;
 	}
+	
 }
