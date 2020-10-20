@@ -206,7 +206,7 @@ public class Maze extends JPanel {
 		List<Cell> paintedCells = new ArrayList();
 		int AreaX = 10;
 	    int AreaY = 10;
-	    int roomSize = (35 - AreaX) / 35 + 60;
+	    int cellSize = (35 - AreaX) / 35 + 60;
 
 	    // temp variables used for painting
 	    int x = AreaX;
@@ -224,27 +224,24 @@ public class Maze extends JPanel {
         			Cell auxCell = pickSpecificCell(auxposition);
         	
 	        		if (!(cell.getNeighbors()[k]) && !paintedCells.contains(auxCell) ) {
-	        			boolean outBounds = false;
-	        			if(auxx<0 || auxx>=rows || auxy<0 || auxy>=cols)  {
-	        				outBounds=true;
-	        			}
+	        			
 	        			switch(id_mov[k]) {
 	        			case "N":
 	     
-	        				g.drawLine(x, y, x + roomSize, y);
+	        				g.drawLine(x, y, x + cellSize, y);
 	        				break;
 	        			case "E":
-	        				g.drawLine(x+roomSize, y+roomSize, x+roomSize,y);
+	        				g.drawLine(x+cellSize, y+cellSize, x+cellSize,y);
 	        				
 	        				break;
 	        			case "S":
 	        				
 	        				
-	        				g.drawLine(x, y+roomSize , x+roomSize , y+roomSize );
+	        				g.drawLine(x, y+cellSize , x+cellSize , y+cellSize );
 	        				
 	        				break;
 	        			case "0":
-	        				g.drawLine(x+roomSize, y, x+roomSize,y + roomSize );
+	        				g.drawLine(x+cellSize, y, x+cellSize,y + cellSize );
 	        				break;
 	        				
 	        			}
@@ -255,11 +252,11 @@ public class Maze extends JPanel {
 	        			
 		        }
 	        	paintedCells.add(cell);
-	        	 x += roomSize;
+	        	 x += cellSize;
 	        }
 	      
 	        x = AreaX;
-	        y += roomSize;
+	        y += cellSize;
 	       
 	    }
 	    /*
