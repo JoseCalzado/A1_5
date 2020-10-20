@@ -54,6 +54,7 @@ public class Main {
 				maze = createMaze(rows, cols);
 				// El resultado del wilson se printea en un jpg.
 				writeJson(maze);
+		
 			} else if (input.equals("B") || input.contentEquals("b")) {
 				chooseanoption = true;
 				System.out.println("Please, write the name of the file that you want to read.");
@@ -222,11 +223,13 @@ public class Main {
 		maze.setCols(cols);
 		maze.setInitialMax_n(); // with this call the cells are created.
 		Cell finale = maze.pickRandomCell();
-		Cell start = maze.pickRandomCell();
-		while(finale == start) {
-			start= maze.pickRandomCell();
-		}
+		maze.pickSpecificCell(finale.getPosition()).setVisited(true);
+		finale.setVisited(true);
+		Wilson wilson = new Wilson(maze);
+		wilson.start();
+		maze = wilson.getMaze();
 		if (checkMaze(maze)) {
+			System.out.println("The maze has been created and checked!");
 			return maze;
 		} else {
 			return null;

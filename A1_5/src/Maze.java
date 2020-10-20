@@ -51,16 +51,16 @@ public class Maze {
 		this.cells = cells;
 	}
 	
-	public void createCells(int maxN, int rows, int cols) {
-		boolean [] neighbours = new boolean[maxN];
-		for(int i =0; i<maxN; i++) {
-			neighbours[i] = false;
-		}
+	public void createCells(int maxN, int rows , int cols) {
 		int x = 0;
 		Cell[] cellArray = new Cell [rows*cols]; 
 		for(int i = 0; i<rows; i++) {
 			for(int j=0; j<cols; j++) {
 				int [] position = {i, j};
+				boolean [] neighbours = new boolean[maxN];
+				for(int k =0; k<maxN; k++) {
+					neighbours[k] = false;
+				}
 				Cell cellprueba = new Cell(position, 0, neighbours);
 				cellArray[x++] = cellprueba;
 			}
@@ -78,6 +78,17 @@ public class Maze {
 		Cell randomCell = cells[randomnumber];
 		return randomCell;
 	}
+	
+	public Cell pickRandomNotVisitedCell() {
+		int randomnumber = (int) Math.floor(Math.random()*rows*cols);
+		Cell randomCell = cells[randomnumber];
+		
+		while( randomCell.getVisited()) {
+			randomnumber = (int) Math.floor(Math.random()*rows*cols);
+			randomCell = cells[randomnumber];
+		}
+		return randomCell;
+	}
 	public Cell pickSpecificCell(int [] position) {
 		for(int i = 0; i< rows * cols; i++) {
 			if(cells[i].getPosition()[0]==position[0] && cells[i].getPosition()[1]==position[1]) {
@@ -85,6 +96,15 @@ public class Maze {
 			}
 		}
 		return null;
+	}
+	public int getNotVisitedNum() {
+		int notVisited = 0;
+		for(int i = 0; i<cells.length; i++) {
+			if(!(cells[i].getVisited())) {
+				notVisited++;
+			}
+		}
+		return notVisited;
 	}
 	public int calculateMax_n() {
 		int maxN = 0;
