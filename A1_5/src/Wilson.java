@@ -15,15 +15,15 @@ public class Wilson {
 	}
 	
 
-	
+	//We start the algorithm, that will be up until we have visited all the cells.
 	public void start() {
 		while(maze.getNotVisitedNum()>0) {
 		
-			Cell start = maze.pickRandomNotVisitedCell();
+			Cell start = maze.pickRandomNotVisitedCell(); 
 			
 			maze.pickSpecificCell(start.getPosition()).setVisited(true);
 			start.setVisited(true);
-			List<Cell> path = new ArrayList<Cell>();
+			List<Cell> path = new ArrayList<Cell>(); //We create the path for later checks (to not get into loops).
 			path.add(start);
 			auxCell = null;
 		
@@ -35,37 +35,34 @@ public class Wilson {
 		boolean exit= false;
 		while(!exit) {
 			
-			int randomNum = possibleMove(start, path);
-			//This case is when the cell has every single one visited, so we cant get out there.
+			int randomNum = possibleMove(start, path); //It puts the auxcell global variable into a possible move.
 			
 			
-			if(randomNum == 5) {
+			
+			if(randomNum == 5) {//This case is when the cell has every single one visited, so we can't get out there.
 				//A cell cannot reach the end s
 				maze.pickSpecificCell(start.getPosition()).setVisited(true);
 				exit=true;
 			}
-			else if(maze.getNotVisitedNum()==0) {
+			else if(maze.getNotVisitedNum()==0) { //We check if the maze has still some not visited cells.
 				exit = true;
 			}
-			else if(auxCell.getVisited()) {
-				
-				//maze.pickSpecificCell(auxCell.getPosition()).setVisited(true);
+			else if(auxCell.getVisited()) {//If we have reached a visited cell, we stop digging.
 				maze.pickSpecificCell(start.getPosition()).setNeighbor(randomNum, true);
 				maze.pickSpecificCell(auxCell.getPosition()).setNeighbor((auxCell.getOppositeNeighbor(randomNum)), true);
 				exit = true;
 				
 			}
-			else  {
+			else  {//We dig more!
 				maze.pickSpecificCell(auxCell.getPosition()).setVisited(true);
 				maze.pickSpecificCell(start.getPosition()).setNeighbor(randomNum, true);
 				maze.pickSpecificCell(auxCell.getPosition()).setNeighbor((auxCell.getOppositeNeighbor(randomNum)), true);
 				path.add(auxCell);
 				start = auxCell;
-				//exit = true;
 		}
 		}
 	}
-	
+	 
 	public int possibleMove(Cell cell,List<Cell> path) {
 		Cell auxcell= null;
 		int x = cell.getPosition()[0];
@@ -77,7 +74,7 @@ public class Wilson {
 			int randomNum=(int) Math.floor(Math.random()*4);
 			if(checkedMoves.size()==4) {
 				exit=true;
-				return 5;
+				return 5; //Returns a 5 when every sing cell around our cell has already been visited.
 			}
 			if(!(checkedMoves.contains(randomNum))) {
 				checkedMoves.add(randomNum);
@@ -91,10 +88,10 @@ public class Wilson {
 				if(!(auxposition[0]<0 || auxposition[0]>=maze.getRows() || auxposition[1]<0 || auxposition[1]>=maze.getCols()) && !(path.contains(auxcell))) {
 					exit = true;
 					auxCell=auxcell;
-					return randomNum;
+					return randomNum; //Returns the number of the neighbor that we are going to visit (Example: randomNum = 0 ; 0 is the position of N).
 				}
 			}
 		}
-		return 5;
+		return 6; // We can't reach this code.
 	}
 }
