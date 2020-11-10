@@ -1,16 +1,14 @@
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Maze extends JPanel {
@@ -63,6 +61,7 @@ public class Maze extends JPanel {
 		this.cells = cells;
 	}
 	
+	//It creates the cells from zero.
 	public void createCells(int maxN, int rows , int cols) {
 		int x = 0;
 		Cell[] cellArray = new Cell [rows*cols]; 
@@ -85,12 +84,16 @@ public class Maze extends JPanel {
 		return "Maze [rows=" + rows + ", cols=" + cols + ", max_n=" + max_n + ", movs=" + Arrays.toString(movs)
 				+ ", id_mov=" + Arrays.toString(id_mov) + ", cells=" + Arrays.toString(cells) + "]";
 	}
+	
+	//Returns a completely random cell;
 	public Cell pickRandomCell() {
 		int randomnumber = (int) Math.floor(Math.random()*rows*cols);
 		Cell randomCell = cells[randomnumber];
 		return randomCell;
 	}
 	
+	
+	//Returns a random not visited cell
 	public Cell pickRandomNotVisitedCell() {
 		int randomnumber = (int) Math.floor(Math.random()*rows*cols);
 		Cell randomCell = cells[randomnumber];
@@ -101,6 +104,8 @@ public class Maze extends JPanel {
 		}
 		return randomCell;
 	}
+	
+	//Returns a cell indicating a specific position.
 	public Cell pickSpecificCell(int [] position) {
 		for(int i = 0; i< rows * cols; i++) {
 			if(cells[i].getPosition()[0]==position[0] && cells[i].getPosition()[1]==position[1]) {
@@ -109,6 +114,8 @@ public class Maze extends JPanel {
 		}
 		return null;
 	}
+	
+	//Returns the number of not visited cells;
 	public int getNotVisitedNum() {
 		int notVisited = 0;
 		for(int i = 0; i<cells.length; i++) {
@@ -118,6 +125,8 @@ public class Maze extends JPanel {
 		}
 		return notVisited;
 	}
+	
+	//Depending on the size, it returns the maximun number of neighbors.
 	public int calculateMax_n() {
 		int maxN = 0;
 		int rowspercols = rows * cols;
@@ -130,6 +139,8 @@ public class Maze extends JPanel {
 		}
 		return maxN;
 	}
+	
+	//It checks every cell of the maze.
 	public boolean checkCells() {
 		if(this.cells.length != this.rows*this.cols) {
 			System.out.println("The number of cells isn't correct.");
@@ -152,6 +163,8 @@ public class Maze extends JPanel {
 		}
 		return true;
 	}
+	
+	//It checks the data of a specific cell.
 	public boolean checkCell(Cell cell) {
 		//x and y are the positions of the checked cell.
 		
@@ -203,10 +216,11 @@ public class Maze extends JPanel {
 	
 	public void paintComponent(Graphics g) 
 	{
-		List<Cell> paintedCells = new ArrayList();
-		int AreaX = 10;
+		List<Cell> paintedCells = new ArrayList<Cell>();//Contains the already painted cells;
+		int AreaX = 10; //These variables are used for starting to paint.
 	    int AreaY = 10;
-	    int cellSize = (35 - AreaX) / 35 + 60;
+	    
+	    int cellSize = (300 - AreaX) / 100 + 6; //Size of each cell of the painted area.
 
 	    // temp variables used for painting
 	    int x = AreaX;
@@ -228,7 +242,7 @@ public class Maze extends JPanel {
 	        			switch(id_mov[k]) {
 	        			case "N":
 	     
-	        				g.drawLine(x, y, x + cellSize, y);
+	        				g.drawLine(x, y, x + cellSize, y); 
 	        				break;
 	        			case "E":
 	        				g.drawLine(x+cellSize, y+cellSize, x+cellSize,y);
@@ -240,8 +254,8 @@ public class Maze extends JPanel {
 	        				g.drawLine(x, y+cellSize , x+cellSize , y+cellSize );
 	        				
 	        				break;
-	        			case "0":
-	        				g.drawLine(x+cellSize, y, x+cellSize,y + cellSize );
+	        			case "O":
+	        				g.drawLine(x, y, x, y+cellSize);
 	        				break;
 	        				
 	        			}
@@ -259,23 +273,52 @@ public class Maze extends JPanel {
 	        y += cellSize;
 	       
 	    }
-	    /*
-	    BufferedImage bi = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_ARGB);
-        //Graphics g = bi.createGraphics();
-        this.paint(g);
-        g.dispose();
-        File file = new File("graph.png");
-        try{
-            ImageIO.write(bi,"png",file);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
-	  
+	    
 	    
     }
+	//It checks everything about the maze to make sure that everything is correct.
+	public  boolean checkMaze() {
+		boolean correctmaze = false;
+		int[][] moves = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+		String[] id_moves = { "N", "E", "S", "O" };
+		if(this.getId_mov().equals(id_moves)) {
+			System.out.println("Error with the name of the movements!");
+			return correctmaze;
+		}
+		if(this.getMovs().equals(moves)) {
+			System.out.println("Error with the value of the movements!"+ this.getMovs());
+			return correctmaze;
+		}
+		if (this.calculateMax_n() != this.getMax_n() || this.getCells().length != this.getCols() * this.getRows()) {
+			System.out.println("The max_n from the maze isn't correct");
+			return correctmaze;
+		}
+		if (!this.checkCells()) {
+			System.out.println("Problem with the cells!");
+			return correctmaze;
+		}
+		correctmaze = true;
+		return correctmaze;
 	}
-	//JPG!!!
+	
+	//It prints the maze into a JFrame to see it on the screen and it prints it into a file named image.png
+	public  void printMaze() {
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(1000, 1000);
+	    frame.setTitle("Maze");
+	    frame.add(this);
+	    frame.setVisible(true);;
+	    BufferedImage bi = new BufferedImage(frame.getSize().width, frame.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+	    Graphics g = bi.createGraphics();
+	    frame.paint(g);  
+	    g.dispose();
+	    try{ImageIO.write(bi,"png",new File("image.png"));}catch (Exception e) {}
+	}
+	
+	
+	
+	}
 	
         
 
