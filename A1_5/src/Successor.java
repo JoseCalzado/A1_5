@@ -2,7 +2,7 @@
 public class Successor {
 	private String mov;
 	private Cell state;
-	private int cost = 1;
+	private int cost;
 	public String getMov() {
 		return mov;
 	}
@@ -24,7 +24,7 @@ public class Successor {
 	public Successor(String mov, Cell state, int cost) {
 		this.mov = mov;
 		this.state = state;
-		this.cost = cost;
+		this.cost = state.getValue()+1;
 	}
 	
 	

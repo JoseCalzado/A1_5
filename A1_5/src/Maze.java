@@ -1,5 +1,6 @@
+import java.awt.Color;
 import java.awt.Graphics;
-
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -18,7 +19,22 @@ public class Maze extends JPanel {
 	private int [] [] movs;
 	private String [] id_mov;
 	private Cell [] cells;
+	private Solution solution;
+	private boolean solved = false;
+	public Solution getSolution() {
+		return solution;
+	}
+	public void setSolution(Solution solution) {
+		this.solution = solution;
+	}
 	
+	
+	public boolean isSolved() {
+		return solved;
+	}
+	public void setSolved(boolean solved) {
+		this.solved = solved;
+	}
 	public int getRows() {
 		return rows;
 	}
@@ -213,7 +229,8 @@ public class Maze extends JPanel {
 		}
 		return true;
 	}
-	
+
+	//This method prints the component into a JPanel and it establishes the Graphics that will be used to print it into the PNG file.
 	public void paintComponent(Graphics g) 
 	{
 		List<Cell> paintedCells = new ArrayList<Cell>();//Contains the already painted cells;
@@ -236,16 +253,60 @@ public class Maze extends JPanel {
         			int auxy = celly+getMovs()[k][1];
         			int [] auxposition = {auxx, auxy};
         			Cell auxCell = pickSpecificCell(auxposition);
-        	
-	        		if (!(cell.getNeighbors()[k]) && !paintedCells.contains(auxCell) ) {
-	        			
+        			//With a switch pick the specific color for each cell.
+        			
+        			
+        			switch(cell.getValue()){ 
+        			case 0:
+        				Graphics2D g2 = (Graphics2D)g;
+        				g2.setColor(new Color(255, 255, 255));
+        				g2.fillRect(x+1, y+1, cellSize-1, cellSize-1);
+        				break;
+        			case 1:
+        				Graphics2D g3 = (Graphics2D)g;
+        				g3.setColor(new Color(210, 105, 30));
+        				g3.fillRect(x+1, y+1, cellSize-1, cellSize-1);
+        				break;
+        			case 2:
+        				Graphics2D g4 = (Graphics2D)g;
+        				g4.setColor(new Color(036,231,017));
+        				g4.fillRect(x+1, y+1, cellSize-1, cellSize-1);
+        				break;
+        			case 3:
+        				Graphics2D g5 = (Graphics2D)g;
+        				g5.setColor(new Color(42, 179, 231));
+        				g5.fillRect(x+1, y+1, cellSize-1, cellSize-1);
+        				break;
+        			}
+        			//If the maze is solved, we print the solution path, the visited list and the frontier.
+        			if (solved) {
+        				
+            			if(solution.getSolutionList().contains(cell)) {
+            				Graphics2D g6 = (Graphics2D)g;
+            				g6.setColor(new Color(255, 0, 0));
+            				g6.fillRect(x+1, y+1, cellSize-1, cellSize-1);
+            			}
+            			else if(solution.getVisitedList().belongs(cell)) {
+            				Graphics2D g7 = (Graphics2D)g;
+            				g7.setColor(new Color(0,143,57));
+            				g7.fillRect(x+1, y+1, cellSize-1, cellSize-1);
+            			}
+            			else if(solution.getFrontierCellsList().contains(cell)) {
+            				Graphics2D g8 = (Graphics2D)g;
+            				g8.setColor(new Color(39, 83, 255));
+            				g8.fillRect(x+1, y+1, cellSize-1, cellSize-1);
+            			}
+            		}
+	        		if (!(cell.getNeighbors()[k]) && !(paintedCells.contains(auxCell) )) {
+	        			Color black = new Color(0,0,0);
+	        			g.setColor(black);
 	        			switch(id_mov[k]) {
 	        			case "N":
-	     
+	        				
 	        				g.drawLine(x, y, x + cellSize, y); 
 	        				break;
 	        			case "E":
-	        				g.drawLine(x+cellSize, y+cellSize, x+cellSize,y);
+	        				g.drawLine(x+cellSize, y, x+cellSize,y+cellSize);
 	        				
 	        				break;
 	        			case "S":
@@ -265,15 +326,15 @@ public class Maze extends JPanel {
 		            }
 	        			
 		        }
-	        	paintedCells.add(cell);
-	        	 x += cellSize;
+	        	
+	          	 x += cellSize;
+	          	 paintedCells.add(cell);
 	        }
-	      
+	        
 	        x = AreaX;
 	        y += cellSize;
 	       
 	    }
-	    
 	    
     }
 	//It checks everything about the maze to make sure that everything is correct.
@@ -299,21 +360,6 @@ public class Maze extends JPanel {
 		}
 		correctmaze = true;
 		return correctmaze;
-	}
-	
-	//It prints the maze into a JFrame to see it on the screen and it prints it into a file named image.png
-	public  void printMaze() {
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(1000, 1000);
-	    frame.setTitle("Maze");
-	    frame.add(this);
-	    frame.setVisible(true);;
-	    BufferedImage bi = new BufferedImage(frame.getSize().width, frame.getSize().height, BufferedImage.TYPE_INT_ARGB); 
-	    Graphics g = bi.createGraphics();
-	    frame.paint(g);  
-	    g.dispose();
-	    try{ImageIO.write(bi,"png",new File("image.png"));}catch (Exception e) {}
 	}
 	
 	
