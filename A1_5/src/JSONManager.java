@@ -1,6 +1,7 @@
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Stack;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -13,9 +14,6 @@ public class JSONManager {
 	private Maze maze;
 	
 	
-
-	
-
 	public int[] getInitial() {
 		return initial;
 	}
@@ -206,4 +204,5 @@ public class JSONManager {
         }
 		return finalposition;
 	}
+
 }

@@ -1,5 +1,11 @@
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 public class Main  {
 	public static void main(String args[]) throws org.json.simple.parser.ParseException {
@@ -14,7 +20,7 @@ public class Main  {
 		boolean chooseanoption = false;
 		//We create a menu
 		while (!chooseanoption)
-			//The option A is creating a random maze;
+			//The option A is creating a random maze, as it was asked on the SUBTASK 1
 			if (input.contentEquals("A") || input.contentEquals("a")) {
 				chooseanoption = true;
 				
@@ -53,7 +59,7 @@ public class Main  {
 				
 				
 				jsonmanager.writeJson(maze);
-			//The option B is to read a json and obtain the initial position, the objetive position and the maze.
+			//The option B is to read a json and obtain the initial position, the objetive position and the maze. Then, we ask the user for an algorithm and we try to solve the maze.
 			} else if (input.equals("B") || input.contentEquals("b")) {
 				chooseanoption = true;
 				System.out.println("Please, write the name of the file that you want to read.");
@@ -65,29 +71,46 @@ public class Main  {
 					try {
 						jsonmanager.readJson(input);
 						Maze mazeread = jsonmanager.getMaze();
-						/* Given the sucesores_100x100.json file, with this quick test we can see that we generate the correct successors.
+						printMaze(mazeread);
 						
-						int[] testposition = {63,77};
-						Cell pruebaCell =mazeread.pickSpecificCell(testposition);
-						pruebaCell.generateSuccessors(mazeread);
-						pruebaCell.printSuccessors();
-						
-						*/
-						
-						createNodes(jsonmanager.getInitial(), jsonmanager.getObjective(), jsonmanager.getMaze());
-						mazeread.printMaze();
-						jsonmanager.writeJson(mazeread);
-						System.out.println("Initial position ("+jsonmanager.getInitial()[0]+", "+jsonmanager.getInitial()[1]+")");
-						System.out.println("Objetive position ("+jsonmanager.getObjective()[0]+", "+jsonmanager.getObjective()[1]+")");
+						jsonmanager.writeJson(mazeread);						
 						
 						choosefile = true;
 						System.out.println(
-								"The filename was correct, the maze has been written on the finalMaze.json file!");
+							"The filename was correct, the readed maze has been written on the finalMaze.json file!");
+						
+						
 					} catch (Exception e) {
 						System.out.println("Error reading the file, please try again");
 						input = readinput.nextLine();
 						input.replace("/", "//");
 					}
+					boolean choosestrategy = false;
+					//We ask for one of the strategies that we have been told to perform.
+					System.out.println("Please, choose one of the following strategies: DEPTH, BREADTH, UNIFORM, GREEDY or A");
+					input = readinput.nextLine();
+					while (!choosestrategy) {
+						if (input.matches("DEPTH") || input.matches("BREADTH") || input.matches("UNIFORM")|| input.matches("GREEDY")|| input.matches("A")) {
+							choosestrategy = true;
+							String strategy = input;
+							//We create the statespace in which we are going to search for a solution.
+							StateSpace statespace = new StateSpace(strategy,jsonmanager.getInitial(), jsonmanager.getObjective(), jsonmanager.getMaze());
+							//If we have a solution we print the png;
+							if(statespace.searchSolution()) {
+								System.out.println("The maze has been solved!");
+								Maze finalMaze = statespace.getMaze();
+								finalMaze.setSolved(true);
+								printSolvedMaze(statespace.getMaze(), statespace.getStrategy());
+							}
+							else {
+								System.out.println("Solution not found!");
+							}
+						} else {
+							System.out.println("Your strategy is not available, try again!");
+							input = readinput.nextLine();
+						}
+					}
+					
 				}
 			//Option E for EXIT
 			} else if (input.equals("E") || input.contentEquals("e")) {
@@ -120,56 +143,43 @@ public class Main  {
 		maze = wilson.getMaze();
 		if (maze.checkMaze()) {
 			System.out.println("The maze has been created and checked!");
-			maze.printMaze();
+			printMaze(maze);
 			return maze;
 		} else {
 			return null;
 		}
 		
 	}
-	//Method that creates nodes until the goal is achieved.
-	//As we can't reach the goal because we are not told to implement any search algorithm, we create at least 100 nodes.
-	public static void  createNodes(int [] initial, int[] objetive, Maze maze) {
-		//We obtain the initial state
-		Cell startstate = maze.pickSpecificCell(initial);
-		TreeNode firstnode = new TreeNode(0,startstate,0,0,0,0);
-		Frontier frontier = new Frontier();
-		//If we dont initialize the frontier, it returns an error.
-		frontier.initializeFrontier();
-		frontier.push(firstnode);
-		TreeNode auxnode= firstnode;
-		Successor [] auxsuccessors;
-		Successor auxsuccessor;
-		int nodeid =0;
-		//As we aren't told to create a visited list or any search algorithm, we create at least 100 nodes to see that are introduced well into the frontier.
-		while((!goal(objetive,auxnode.getState())) && (nodeid<100)) {
-			auxnode = frontier.pop();
-			auxnode.getState().generateSuccessors(maze);
-			auxsuccessors = auxnode.getState().getSuccessors();
-			for(int i=0;i<auxsuccessors.length;i++) {
-				auxsuccessor = auxsuccessors[i];
-				nodeid++;
-				TreeNode newnode = new TreeNode(nodeid, auxsuccessor.getState(), auxnode.getValue()+1, auxnode.getDepth()+1, auxnode.getCost()+1, 0, auxsuccessor.getMov(),auxnode);
-				frontier.push(newnode);
-			}
-		}
-		
+	//this method creates the first JFrame and invokes the print method from the Maze class which will print the original maze.
+	public static  void printMaze(Maze maze) {
+		JFrame frame = new JFrame();
+		frame.setSize(1000, 1000);
+	    frame.setTitle("Maze");
+	    frame.add(maze);
+	    frame.setVisible(true);;
+	    BufferedImage bi = new BufferedImage(frame.getSize().width, frame.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+	    Graphics g = bi.createGraphics();
+	    frame.paint(g);  
+	    g.dispose();
+	    String filename="puzzle_loop_"+maze.getRows()+"x"+maze.getCols()+".png";
+	    try{ImageIO.write(bi,"png",new File(filename));}catch (Exception e) {}
 	}
 	
-	//Method to check the goal.
-	public static boolean goal(int [] objetive, Cell state) {
-		if(state.getPosition()==objetive) {
-			System.out.println("Solution!");
-			return true;
-		}
-		
-		else {
-			return false;
-		}
-		
+	//When we solve the maze, we print it as we have been told, with the colors for the frontier, visited list and 
+	public static  void printSolvedMaze(Maze maze, String strategy) {
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(1000, 1000);
+	    frame.setTitle("Maze");
+	    frame.add(maze);
+	    frame.setVisible(true);;
+	    BufferedImage bi = new BufferedImage(frame.getSize().width, frame.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+	    Graphics g = bi.createGraphics();
+	    frame.paint(g);  
+	    g.dispose();
+	    String filename="solution_"+maze.getRows()+"x"+maze.getCols()+"_"+strategy+"20.png";
+	    try{ImageIO.write(bi,"png",new File(filename));}catch (Exception e) {}
 	}
-	
-	
 	
 
 }
